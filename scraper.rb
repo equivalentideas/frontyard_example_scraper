@@ -1,25 +1,49 @@
-# This is a template for a Ruby scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+# This is an example to see if your machine is ready to
+# do some web scraping with Ruby.
+#
+# Run this file on the command line with
+#
+#   bundle exec ruby scraper.rb
 
-# require 'scraperwiki'
-# require 'mechanize'
-#
-# agent = Mechanize.new
-#
-# # Read in a page
-# page = agent.get("http://foo.com")
-#
-# # Find somehing on the page using css selectors
-# p page.at('div.content')
-#
-# # Write out to the sqlite database using scraperwiki library
-# ScraperWiki.save_sqlite(["name"], {"name" => "susan", "occupation" => "software developer"})
-#
-# # An arbitrary query against the database
-# ScraperWiki.select("* from data where 'name'='peter'")
+# Get our tools
+require 'scraperwiki'
+require 'mechanize'
 
-# You don't have to do things with the Mechanize or ScraperWiki libraries.
-# You can use whatever gems you want: https://morph.io/documentation/ruby
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+# Load up our agent
+agent = Mechanize.new
+
+puts "Woot woot, we're all set to go"
+
+# Rest for a moment
+sleep 2
+
+# Read in a page
+page = agent.get("http://www.frontyardprojects.org/")
+
+# Find somehing on the page using css selectors
+puts "You've successfully requested the " + page.at('h1').text + " homepage"
+
+sleep 2
+puts "Let's collect all the navigation items"
+sleep 2
+# For each 'a' element in the '#naviation' element
+page.at('#navigation').search('a').each do |a_element|
+  record = {
+    page_name: a_element.text,
+    page_url: a_element[:href]
+  }
+
+  puts record
+  # Write out to the sqlite database using scraperwiki library
+  # the first argument is the attribute that makes this row uniuqe
+  # the second argument is the record object to save.
+  ScraperWiki.save_sqlite([:page_name], record)
+  sleep 0.5
+end
+
+3.times do
+  puts "..."
+  sleep 1
+end
+
+puts "We're all done!"
